@@ -5,8 +5,6 @@ library(tm)
 
 corpus<-Corpus(VectorSource(mycorpus$Abstract))
 
-corpus
-
 cleancorpus<-tm_map(corpus,content_transformer(removePunctuation))
 cleancorpus<-tm_map(cleancorpus,content_transformer(removeNumbers))
 cleancorpus<-tm_map(cleancorpus,content_transformer(tolower))
@@ -16,8 +14,6 @@ cleancorpus
 
 
 tdm<-DocumentTermMatrix(cleancorpus)
-
-tdm
 
 #weith with tfidf
 tdm2 <- as.DocumentTermMatrix(tdm,weighting=weightTfIdf)
@@ -30,7 +26,7 @@ tdm
 # install.packages("topicmodels", repos='http://cran.us.r-project.org')
 
 library(topicmodels)
-lda <- LDA(tdm, k = 50) # find 20 topics
+lda <- LDA(tdm, k = 50) # find 20 topics; for 50 you need some patience, depending on your computer
 
 str(lda)
 
@@ -46,32 +42,12 @@ library(ggplot2)
 #qplot(date, ..count.., data=topics_years, geom="density", fill=terms_10[topic_most_likely])
 qplot(date, ..count.., data=topics_years, geom="density", fill=paste(topic_most_likely))
 
-
 # I find ggplot more explicit (a commenter on StackOverflow said: "ignore qplot..."):
 
 ggplot(topics_years, aes(x=date, y=..count..)) + 
   geom_density(aes(fill=paste(topic_most_likely)), position="stack")
 
 table(mycorpus$anno)
-
-print(xyplot(theta_mean_by_year_ts[,names(sort(theta_mean_lm_coef_slope))],
-	#layout = c(5, 5),
-	#screens = c(rep("cold topics", 5), rep("hot topics", 5)),
-	screens = rep(1:5, each = 10),
-	superpose = TRUE,
-	col = "blue",
-	alpha = 0.3,
-	#ylim = c(0, 0.015),
-        #ylab = "Mean theta",
-        ylab = expression(paste("Mean ",theta)),
-	xlab = "Year",
-	type = c("l", "g"),
-	#aspect = "xy",
-	#auto.key = list(space = "right"), 
-	auto.key = FALSE,
-	scales = list(x = list(alternating = FALSE)),
-	#par.settings = standard.theme(color = FALSE)
-	))
 
 years <- levels(factor(mycorpus$anno))
 topics_n <- lda@k
@@ -114,8 +90,27 @@ colnames(cold_and_hot_ts) <- as.character(c(topics_cold[1:5], topics_hot[1:5]))
 
 library(lattice)
 
+print(xyplot(theta_mean_by_year_ts[,names(sort(theta_mean_lm_coef_slope))],
+	#layout = c(5, 5),
+	#screens = c(rep("cold topics", 5), rep("hot topics", 5)),
+	screens = rep(1:5, each = 10),
+	superpose = TRUE,
+	col = "blue",
+	alpha = 0.3,
+	#ylim = c(0, 0.015),
+        #ylab = "Mean theta",
+        ylab = expression(paste("Mean ",theta)),
+	xlab = "Year",
+	type = c("l", "g"),
+	#aspect = "xy",
+	#auto.key = list(space = "right"), 
+	auto.key = FALSE,
+	scales = list(x = list(alternating = FALSE)),
+	#par.settings = standard.theme(color = FALSE)
+	))
+
 print(xyplot(cold_and_hot_ts,
-	layout = c(2, 1),
+	layout = c(1, 2),
         screens = c(rep("Cold topics", 5), rep("Hot topics", 5)),
 	superpose = TRUE,
         #ylim = c(0.04, 0.06),
